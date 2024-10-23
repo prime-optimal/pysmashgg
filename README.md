@@ -24,29 +24,45 @@ A command-line interface for fetching and displaying tournament information from
 
 ## Usage
 
-The CLI provides two main commands:
+The CLI provides two main commands: `search` and `results`.
 
 ### Search for Tournaments
 
-Search for tournaments by owner ID:
-```
-python startgg.py search <owner-id>
+Search for tournaments by tournament organizer (owner) ID:
+```bash
+python startgg.py search <owner-id> [OPTIONS]
 ```
 
 Options:
 - `--page`, `-p`: Page number for results (default: 1)
 - `--limit`, `-l`: Number of tournaments to display (default: 10)
+- `--select`, `-s`: Interactively select a tournament to view its results
 
-Example:
+Examples:
+```bash
+# Display first 5 tournaments for owner ID 161429
+python startgg.py search 161429 --limit 5
+
+# Search with interactive selection
+python startgg.py search 161429 --select
+
+# View next page of results
+python startgg.py search 161429 --page 2
 ```
-python startgg.py search 12345 --limit 20
-```
+
+The search command displays:
+- Tournament name and slug
+- Event date
+- Location
+- Number of entrants
+
+When using the `--select` option, you can choose a tournament from the list to immediately view its results.
 
 ### Get Tournament Results
 
 Fetch and display Top 8 results for all events in a tournament:
-```
-python startgg.py results <tournament-slug>
+```bash
+python startgg.py results <tournament-slug> [OPTIONS]
 ```
 
 Export options:
@@ -55,34 +71,56 @@ Export options:
 - `--txt`, `-t`: Export results in TXT format
 
 Example:
-```
+```bash
 python startgg.py results tns-street-fighter-6-69 --json results.json
 ```
 
 ### Help
 
 To see all available commands and options:
-```
+```bash
 python startgg.py --help
 ```
 
 For help with a specific command:
-```
-python startgg.py <command> --help
+```bash
+python startgg.py search --help
+python startgg.py results --help
 ```
 
 ## Output
 
 The CLI provides rich, formatted output including:
+
+For search results:
+- Tournament names and slugs
+- Event dates and locations
+- Number of entrants
+- Interactive selection option
+
+For tournament results:
 1. Tournament information (name, location, date, number of entrants)
 2. List of events in the tournament
-3. Top 8 results for each event, including the total number of participants
+3. Top 8 results for each event, including total participant count
 
-When using the search command, you'll see:
-1. Tournament names and slugs
-2. Dates and locations
-3. Number of entrants
-4. A tip showing how to view results for any listed tournament
+## Export Formats
+
+Results can be exported in three formats:
+
+1. JSON:
+   - Structured data format
+   - Includes all event results
+   - Ideal for programmatic use
+
+2. CSV:
+   - Comma-separated values
+   - Easy to import into spreadsheets
+   - One row per player placement
+
+3. TXT:
+   - Plain text format
+   - Human-readable
+   - Formatted similar to console output
 
 ## Contributing
 

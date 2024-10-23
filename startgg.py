@@ -11,6 +11,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
+from rich.prompt import Prompt
 from dotenv import load_dotenv
 import pysmashgg
 from pysmashgg.tournaments import show_events
@@ -18,20 +19,98 @@ from pysmashgg.api import run_query
 from pysmashgg.t_queries import SHOW_LIGHTWEIGHT_RESULTS_QUERY
 
 # Initialize Typer app and Rich console
-app = typer.Typer()
+app = typer.Typer(help="Fetch and display Smash.gg tournament information")
 console = Console()
+
+# Load environment variables and initialize SmashGG
+load_dotenv()
+smash = pysmashgg.SmashGG(os.getenv('KEY'))
 
 def version_callback(value: bool):
     if value:
-        console.print("[cyan]SmashGG Results Fetcher v1.3.0[/]")
+        console.print("[cyan]SmashGG Results Fetcher v1.4.0[/]")
         raise typer.Exit()
 
 @app.callback()
 def callback():
     """
-    Fetch and display Top 8 results for Smash.gg tournaments
+    Fetch and display Smash.gg tournament information
     """
     pass
+
+@app.command()
+def search(
+    owner_id: int = typer.Argument(..., help="The tournament organizer's ID"),
+    page: int = typer.Option(1, "--page", "-p", help="Page number for results"),
+    limit: int = typer.Option(10, "--limit", "-l", help="Number of tournaments to display"),
+    select: bool = typer.Option(False, "--select", "-s", help="Interactively select a tournament to view results")
+):
+    """
+    Search for tournaments by owner ID
+    """
+    try:
+        with console.status("[bold green]Searching for tournaments..."):
+            tournaments = smash.tournament_show_by_owner(owner_id, page)
+
+        if not tournaments:
+            console.print("[yellow]No tournaments found for this owner ID[/]")
+            return
+
+        # Create a table to display the tournaments
+        table = Table(title=f"Tournaments by Owner ID: {owner_id}")
+        table.add_column("#", style="cyan", justify="right")
+        table.add_column("Name", style="green")
+        table.add_column("Date", style="yellow")
+        table.add_column("Location", style="blue")
+        table.add_column("Entrants", justify="right", style="magenta")
+        table.add_column("Slug", style="white", overflow="fold")
+
+        # Add tournaments to the table
+        displayed_tournaments = []
+        for idx, tournament in enumerate(tournaments[:limit], 1):
+            start_date = datetime.fromtimestamp(tournament.get('startAt', 0)).strftime('%Y-%m-%d')
+            location = f"{tournament.get('city', 'N/A')}, {tournament.get('state', 'N/A')}"
+            entrants = str(tournament.get('numAttendees', 'N/A'))
+            
+            table.add_row(
+                str(idx),
+                tournament['name'],
+                start_date,
+                location,
+                entrants,
+                tournament['slug']
+            )
+            displayed_tournaments.append(tournament)
+
+        console.print(table)
+        
+        if len(tournaments) > limit:
+            console.print(f"\n[yellow]Showing {limit} of {len(tournaments)} tournaments. Use --limit to see more.[/]")
+
+        if select:
+            # Allow user to select a tournament and view its results
+            choice = Prompt.ask(
+                "\nEnter tournament number to view results",
+                choices=[str(i) for i in range(1, len(displayed_tournaments) + 1)],
+                show_choices=False
+            )
+            
+            selected_tournament = displayed_tournaments[int(choice) - 1]
+            console.print(f"\n[green]Selected tournament:[/] {selected_tournament['name']}")
+            
+            # Call the results command for the selected tournament
+            results(selected_tournament['slug'])
+        else:
+            # Add a tip about using the tournament slug
+            console.print("\n[cyan]Tips:[/]")
+            console.print("1. Use the tournament slug with the 'results' command to view tournament results:")
+            console.print("[green]   python startgg.py results <tournament-slug>[/]")
+            console.print("2. Use --select (-s) flag to interactively select a tournament:")
+            console.print("[green]   python startgg.py search <owner-id> --select[/]")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/] {str(e)}")
+        raise typer.Exit(code=1)
 
 @app.command()
 def results(
@@ -43,15 +122,8 @@ def results(
                                          help="Show the application version and exit"),
 ):
     """
-    Fetch and display Top 8 results for a Smash.gg tournament.
-    Results can be optionally exported to JSON, CSV, or TXT format.
+    Fetch and display Top 8 results for a Smash.gg tournament
     """
-    # Load environment variables
-    load_dotenv()
-
-    # Initialize SmashGG with API key
-    smash = pysmashgg.SmashGG(os.getenv('KEY'))
-
     try:
         # Get tournament information
         with console.status("[bold green]Fetching tournament info..."):
