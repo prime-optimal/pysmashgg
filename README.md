@@ -28,26 +28,38 @@ The CLI provides two main commands: `search` and `results`.
 
 ### Search for Tournaments
 
-Search for tournaments by tournament organizer (owner) ID:
+You can search for tournaments in two ways:
+
+1. Using a tournament slug to find the organizer and their tournaments:
 ```bash
-python startgg.py search <owner-id> [OPTIONS]
+python startgg.py search --tournament <tournament-slug>
 ```
 
-Options:
+2. Directly using the tournament organizer's ID:
+```bash
+python startgg.py search --owner <owner-id>
+```
+
+Search options:
+- `--tournament`, `-t`: Search using a tournament slug to find the organizer
+- `--owner`, `-o`: Search directly with a tournament organizer's ID
 - `--page`, `-p`: Page number for results (default: 1)
 - `--limit`, `-l`: Number of tournaments to display (default: 10)
 - `--select`, `-s`: Interactively select a tournament to view its results
 
 Examples:
 ```bash
+# Find tournaments by a known tournament slug
+python startgg.py search --tournament tns-street-fighter-6-69
+
 # Display first 5 tournaments for owner ID 161429
-python startgg.py search 161429 --limit 5
+python startgg.py search --owner 161429 --limit 5
 
 # Search with interactive selection
-python startgg.py search 161429 --select
+python startgg.py search --owner 161429 --select
 
 # View next page of results
-python startgg.py search 161429 --page 2
+python startgg.py search --owner 161429 --page 2
 ```
 
 The search command displays:
@@ -96,6 +108,7 @@ For search results:
 - Tournament names and slugs
 - Event dates and locations
 - Number of entrants
+- Tournament organizer information (when searching by tournament slug)
 - Interactive selection option
 
 For tournament results:

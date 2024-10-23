@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2024-10-22
+
+### Added
+- Enhanced search functionality:
+  - Search by tournament slug to find organizer
+  - Get tournament organizer information
+  - Interactive tournament selection
+- Custom GraphQL query for tournament owner information
+- Improved error handling for search operations
+- Updated documentation with new search features
+
+### Changed
+- Search command now supports both owner ID and tournament slug
+- Improved search results display with more tournament details
+- Enhanced help text with more examples and usage information
+
 ## [1.4.0] - 2024-01-14
 
 ### Added
