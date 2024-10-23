@@ -2,7 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.3.0] - 2023-06-14
+## [1.4.0] - 2024-01-14
+
+### Added
+- New CLI interface using Typer and Rich libraries
+- Search command to find tournaments by owner ID
+- Improved formatting with colored output and tables
+- Progress indicators for long-running operations
+- Better help text and command documentation
+
+### Changed
+- Renamed main script from app.py to startgg.py
+- Restructured commands into a more organized CLI
+- Updated documentation with new command structure
+- Improved error handling and user feedback
+
+### Removed
+- Old app.py script in favor of new CLI structure
+
+## [1.3.0] - 2024-01-10
 
 ### Added
 - Export functionality for results in JSON, CSV, and TXT formats

@@ -1,69 +1,88 @@
-# Smash.gg Tournament Results Fetcher
+# Start.gg Tournament Results CLI
 
-This script fetches and displays Top 8 results for all events in a specified Smash.gg tournament. It also provides options to export the results in various formats.
+A command-line interface for fetching and displaying tournament information from Start.gg (formerly Smash.gg).
 
 ## Requirements
 
 - Python 3.6+
 - `pysmashgg` library
 - `python-dotenv` library
+- `typer` library
+- `rich` library
 
 ## Installation
 
 1. Clone this repository
 2. Install the required libraries:
    ```
-   pip install pysmashgg python-dotenv
+   pip install pysmashgg python-dotenv "typer[all]"
    ```
-3. Create a `.env` file in the project root and add your Smash.gg API key:
+3. Create a `.env` file in the project root and add your Start.gg API key:
    ```
    KEY=your_api_key_here
    ```
 
 ## Usage
 
-Basic usage:
+The CLI provides two main commands:
+
+### Search for Tournaments
+
+Search for tournaments by owner ID:
 ```
-python app.py <tournament-slug>
+python startgg.py search <owner-id>
 ```
+
+Options:
+- `--page`, `-p`: Page number for results (default: 1)
+- `--limit`, `-l`: Number of tournaments to display (default: 10)
 
 Example:
 ```
-python app.py tns-street-fighter-6-69
+python startgg.py search 12345 --limit 20
 ```
 
-This will display the tournament information and Top 8 results for all events in the tournament.
+### Get Tournament Results
 
-### Export Options
-
-You can export the results in different formats using the following flags:
-
-- `-j` or `--json`: Export results in JSON format
-- `-c` or `--csv`: Export results in CSV format
-- `-t` or `--txt`: Export results in TXT format
-
-Examples:
+Fetch and display Top 8 results for all events in a tournament:
 ```
-python app.py tns-street-fighter-6-69 -j results.json
-python app.py tns-street-fighter-6-69 -c results.csv
-python app.py tns-street-fighter-6-69 -t results.txt
+python startgg.py results <tournament-slug>
+```
+
+Export options:
+- `--json`, `-j`: Export results in JSON format
+- `--csv`, `-c`: Export results in CSV format
+- `--txt`, `-t`: Export results in TXT format
+
+Example:
+```
+python startgg.py results tns-street-fighter-6-69 --json results.json
 ```
 
 ### Help
 
-To see all available options and get help, use the `-h` flag:
+To see all available commands and options:
 ```
-python app.py -h
+python startgg.py --help
+```
+
+For help with a specific command:
+```
+python startgg.py <command> --help
 ```
 
 ## Output
 
-The script will display:
+The CLI provides rich, formatted output including:
 1. Tournament information (name, location, date, number of entrants)
 2. List of events in the tournament
 3. Top 8 results for each event, including the total number of participants
 
-If an export option is used, the results will be saved in the specified format.
+When using the search command, you'll see:
+1. Tournament names and slugs
+2. Dates and locations
+3. Number of entrants
+4. A tip showing how to view results for any listed tournament
 
 ## Contributing
 
