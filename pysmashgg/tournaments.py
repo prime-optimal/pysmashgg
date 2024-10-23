@@ -1,4 +1,4 @@
-from pysmashgg import filters
+from pysmashgg import filters, videogame_filters
 from pysmashgg.t_queries import *
 from pysmashgg.api import run_query
 
@@ -150,4 +150,18 @@ def show_by_owner(owner, page_num, header, auto_retry):
     variables = {"ownerId": owner, "page": page_num}
     response = run_query(SHOW_BY_OWNER_QUERY, variables, header, auto_retry)
     data = filters.show_by_owner_filter(response)
+    return data
+
+def get_videogame_id(game_name, header, auto_retry):
+    """Get the ID for a video game by its name"""
+    variables = {"name": game_name}
+    response = run_query(GET_VIDEOGAME_ID_QUERY, variables, header, auto_retry)
+    data = videogame_filters.get_videogame_id_filter(response)
+    return data
+
+def show_by_videogame(videogame_id, page_num, header, auto_retry):
+    """Shows a list of tournaments for a specific video game"""
+    variables = {"videogameId": videogame_id, "page": page_num}
+    response = run_query(SHOW_BY_VIDEOGAME_QUERY, variables, header, auto_retry)
+    data = videogame_filters.show_by_videogame_filter(response)
     return data

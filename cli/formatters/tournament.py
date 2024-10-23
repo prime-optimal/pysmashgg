@@ -3,13 +3,13 @@
 from datetime import datetime
 from rich.table import Table
 
-def create_tournament_table(tournaments, owner_id):
+def create_tournament_table(tournaments, title):
     """Create a Rich table for displaying tournaments.
     
     Args:
         tournaments: List of tournament dictionaries containing tournament information
                     Each tournament should have: name, startTimestamp, city, state, entrants, slug
-        owner_id: ID of the tournament organizer
+        title: Title for the table (e.g., Owner ID or Game name)
     
     Returns:
         Rich Table object containing formatted tournament information with columns:
@@ -20,7 +20,7 @@ def create_tournament_table(tournaments, owner_id):
         - Entrants: Number of participants
         - Slug: Tournament slug for API reference
     """
-    table = Table(title=f"Tournaments by Owner ID: {owner_id}")
+    table = Table(title=f"Tournaments by {title}")
     table.add_column("#", style="cyan", justify="right")
     table.add_column("Name", style="green")
     table.add_column("Date", style="yellow")

@@ -389,3 +389,49 @@ SHOW_BY_OWNER_QUERY = """query TournamentsByOwner($ownerId: ID!, $page: Int!) {
   }
 }
 """
+
+GET_VIDEOGAME_ID_QUERY = """query VideoGameQuery($name: String!) {
+  videogames(query: {
+    filter: {
+      name: $name
+    }
+  }) {
+    nodes {
+      id
+      name
+    }
+  }
+}"""
+
+SHOW_BY_VIDEOGAME_QUERY = """query TournamentsByVideogame($videogameId: ID!, $page: Int!) {
+  tournaments(query: {
+    page: $page
+    perPage: 25
+    sortBy: "startAt desc"
+    filter: {
+      videogameIds: [$videogameId]
+    }
+  }) {
+    nodes {
+      id
+      name
+      slug
+      numAttendees
+      countryCode
+      addrState
+      city
+      startAt
+      endAt
+      state
+      events {
+        id
+        name
+        numEntrants
+        videogame {
+          id
+          name
+        }
+      }
+    }
+  }
+}"""

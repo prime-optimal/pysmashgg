@@ -149,3 +149,11 @@ class SmashGG(object):
     # League standings
     def league_show_standings(self, league_name, page_num):
         return leagues.show_standings(league_name, page_num, self.header, self.auto_retry)
+
+    # Get video game ID by name
+    def get_videogame_id(self, game_name):
+        return tournaments.get_videogame_id(game_name, self.header, self.auto_retry)
+    
+    # Show tournaments by video game ID
+    def tournament_show_by_videogame(self, videogame_id, page_num):
+        return tournaments.show_by_videogame(videogame_id, page_num, self.header, self.auto_retry)
