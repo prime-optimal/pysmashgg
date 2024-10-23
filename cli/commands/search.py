@@ -1,4 +1,9 @@
-"""Tournament search command implementation."""
+"""Tournament search command implementation.
+
+This module provides the search command for finding tournaments by owner ID,
+tournament slug, or game name. Recent changes include filtering game-specific
+searches to show only tournaments within the next week by default.
+"""
 
 from datetime import datetime
 from typing import Optional
@@ -76,6 +81,9 @@ def search(
     
     The results can be paginated using --page and limited using --limit.
     Using --select enables interactive tournament selection to view results.
+    
+    When searching by game name, tournaments are filtered to show only those
+    scheduled within the next week by default.
     """
     try:
         # If tournament slug is provided, get the owner ID
@@ -99,7 +107,7 @@ def search(
                 return
             
             console.print(f"Found game ID: [cyan]{game_id}[/]")
-            console.print("[bold green]Searching for tournaments...[/]")
+            console.print("[bold green]Searching for tournaments in the next week...[/]")
             tournaments = startgg.smash.tournament_show_by_videogame(game_id, page)
             
             # Debug output
