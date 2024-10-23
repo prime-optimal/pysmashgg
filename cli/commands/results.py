@@ -12,6 +12,7 @@ from ..formatters.results import create_results_table
 from pysmashgg.tournaments import show_events
 from pysmashgg.api import run_query
 from pysmashgg.t_queries import SHOW_LIGHTWEIGHT_RESULTS_QUERY
+from pysmashgg import filters
 
 # Import the global SmashGG instance
 import startgg
@@ -36,6 +37,9 @@ def results(
         # Get tournament information
         with console.status("[bold green]Fetching tournament info..."):
             tournament_info = startgg.smash.tournament_show(tournament_slug)
+            if not tournament_info:
+                console.print("[red]Could not find tournament information[/]")
+                return
             
             # Display tournament info
             start_date = datetime.fromtimestamp(tournament_info['startTimestamp']).strftime('%Y-%m-%d')
@@ -53,6 +57,10 @@ def results(
         # Get tournament events
         with console.status("[bold green]Fetching events..."):
             events = show_events(tournament_slug, startgg.smash.header, startgg.smash.auto_retry)
+            if not events:
+                console.print("[red]Could not find any events for this tournament[/]")
+                return
+                
             console.print(f"\nFound [cyan]{len(events)}[/] events for tournament: [bold]{tournament_info['name']}[/]")
 
         # Store all results for potential export
@@ -66,25 +74,18 @@ def results(
             with console.status(f"[bold green]Fetching results for {event_name}..."):
                 variables = {"eventId": event_id, "page": 1}
                 response = run_query(SHOW_LIGHTWEIGHT_RESULTS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
+                standings = filters.show_lightweight_results_filter(response)
                 
-                if 'data' in response and 'event' in response['data'] and 'standings' in response['data']['event']:
-                    standings = response['data']['event']['standings']['nodes']
-                    top_8 = []
-                    for player in standings[:8]:
-                        top_8.append({
-                            "placement": player['placement'],
-                            "name": player['entrant']['name']
-                        })
+                if standings:
+                    top_8 = standings[:8]
+                    all_results[event_name] = top_8
+                    total_players = len(standings)
                     
-                    if top_8:
-                        all_results[event_name] = top_8
-                        total_players = len(standings)
-                        
-                        # Display results in a table
-                        table = create_results_table(event_name, top_8, total_players)
-                        console.print(table)
-                    else:
-                        console.print(f"[yellow]No results found for {event_name}[/]")
+                    # Display results in a table
+                    table = create_results_table(event_name, top_8, total_players)
+                    console.print(table)
+                else:
+                    console.print(f"[yellow]No results found for {event_name}[/]")
 
         # Export results if requested
         if any([json_file, csv_file, txt_file]):
