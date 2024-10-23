@@ -16,7 +16,7 @@ def create_tournament_table(tournaments, owner_id):
         - #: Index number
         - Name: Tournament name
         - Date: Tournament start date
-        - Location: City, State
+        - Location: City, State or "Online" if no location
         - Entrants: Number of participants
         - Slug: Tournament slug for API reference
     """
@@ -31,8 +31,12 @@ def create_tournament_table(tournaments, owner_id):
     for idx, tournament in enumerate(tournaments, 1):
         # Convert timestamp to readable date
         start_date = datetime.fromtimestamp(tournament.get('startTimestamp', 0)).strftime('%Y-%m-%d')
-        # Format location as "City, State"
-        location = f"{tournament.get('city', 'N/A')}, {tournament.get('state', 'N/A')}"
+        
+        # Format location, showing "Online" if no city/state available
+        city = tournament.get('city')
+        state = tournament.get('state')
+        location = f"{city}, {state}" if city and state else "Online"
+        
         # Get entrants count, defaulting to N/A if not available
         entrants = str(tournament.get('entrants', 'N/A'))
         

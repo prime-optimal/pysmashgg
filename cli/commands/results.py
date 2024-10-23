@@ -45,9 +45,14 @@ def results(
             start_date = datetime.fromtimestamp(tournament_info['startTimestamp']).strftime('%Y-%m-%d')
             end_date = datetime.fromtimestamp(tournament_info['endTimestamp']).strftime('%Y-%m-%d')
             
+            # Format location, showing "Online" if no city/state available
+            city = tournament_info.get('city')
+            state = tournament_info.get('state')
+            location = f"{city}, {state}" if city and state else "Online"
+            
             info_text = [
                 f"[bold cyan]Name:[/] {tournament_info['name']}",
-                f"[bold cyan]Location:[/] {tournament_info['city'] or 'N/A'}, {tournament_info['state'] or 'N/A'}",
+                f"[bold cyan]Location:[/] {location}",
                 f"[bold cyan]Date:[/] {start_date} to {end_date}",
                 f"[bold cyan]Entrants:[/] {tournament_info['entrants']}"
             ]

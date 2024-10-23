@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.2] - 2024-10-23
+
+### Changed
+- Improved location display to show "Online" instead of "None, None" when no city/state is available
+- Updated location formatting in both search results and tournament details
+
 ## [1.5.1] - 2024-10-23
 
 ### Added
