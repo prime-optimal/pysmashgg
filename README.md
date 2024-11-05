@@ -28,7 +28,7 @@ The CLI provides two main commands: `search` and `results`.
 
 ### Search for Tournaments
 
-You can search for tournaments in two ways:
+You can search for tournaments in three ways:
 
 1. Using a tournament slug to find the organizer and their tournaments:
 ```bash
@@ -40,9 +40,15 @@ python startgg.py search --tournament <tournament-slug>
 python startgg.py search --owner <owner-id>
 ```
 
+3. By game name to find upcoming tournaments:
+```bash
+python startgg.py search --game "Street Fighter 6"
+```
+
 Search options:
 - `--tournament`, `-t`: Search using a tournament slug to find the organizer
 - `--owner`, `-o`: Search directly with a tournament organizer's ID
+- `--game`, `-g`: Search for tournaments by game name
 - `--page`, `-p`: Page number for results (default: 1)
 - `--limit`, `-l`: Number of tournaments to display (default: 10)
 - `--select`, `-s`: Interactively select a tournament to view its results
@@ -60,12 +66,15 @@ python startgg.py search --owner 161429 --select
 
 # View next page of results
 python startgg.py search --owner 161429 --page 2
+
+# Find upcoming Street Fighter 6 tournaments
+python startgg.py search --game "Street Fighter 6"
 ```
 
 The search command displays:
 - Tournament name and slug
 - Event date
-- Location
+- Location (shows "Online" for online tournaments)
 - Number of entrants
 
 When using the `--select` option, you can choose a tournament from the list to immediately view its results.
@@ -112,7 +121,12 @@ For search results:
 - Interactive selection option
 
 For tournament results:
-1. Tournament information (name, location, date, number of entrants)
+1. Tournament information:
+   - Name and direct URL to tournament page
+   - Location (city, state or "Online")
+   - Date range
+   - Number of entrants
+   - Tournament organizer name and ID
 2. List of events in the tournament
 3. Top 8 results for each event, including total participant count
 

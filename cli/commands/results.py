@@ -52,10 +52,15 @@ def results(
             
             info_text = [
                 f"[bold cyan]Name:[/] {tournament_info['name']}",
+                f"[bold cyan]URL:[/] https://start.gg/tournament/{tournament_slug}",
                 f"[bold cyan]Location:[/] {location}",
                 f"[bold cyan]Date:[/] {start_date} to {end_date}",
                 f"[bold cyan]Entrants:[/] {tournament_info['entrants']}"
             ]
+
+            # Add tournament organizer info if available
+            if 'owner' in tournament_info and tournament_info['owner']:
+                info_text.append(f"[bold cyan]Tournament Organizer:[/] {tournament_info['owner']['name']} (ID: {tournament_info['owner']['id']})")
             
             console.print(Panel("\n".join(info_text), title="Tournament Info", border_style="cyan"))
 

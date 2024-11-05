@@ -1,0 +1,229 @@
+# start.gg GraphQL API Schema Reference
+
+## Overview
+This document provides a comprehensive reference for the start.gg GraphQL API schema, detailing the available types, objects, input objects, enums, scalars, and other key components.
+
+## Scalars
+- ID: Unique identifier for objects
+- String: Text string
+- Int: Integer number
+- Float: Floating-point number
+- Boolean: True/False value
+- DateTime: ISO 8601 formatted date and time
+
+## Core Objects
+
+### Tournament
+- id: ID!
+- name: String!
+- slug: String!
+- startAt: DateTime
+- endAt: DateTime
+- city: String
+- state: String
+- countryCode: String
+- timezone: String
+- venue: VenueConnection
+- events: EventConnection
+- participants: ParticipantConnection
+- streams: StreamConnection
+- isOnline: Boolean
+- numAttendees: Int
+- registrationOpen: Boolean
+
+### Event
+- id: ID!
+- name: String!
+- slug: String!
+- tournament: Tournament!
+- videogame: Videogame
+- startAt: DateTime
+- endAt: DateTime
+- state: String
+- type: Int
+- numEntrants: Int
+- phases: PhaseConnection
+- standings: StandingConnection
+- entrants: EntrantConnection
+- teamRosterSize: TeamRosterSize
+
+### Player
+- id: ID!
+- gamerTag: String!
+- prefix: String
+- user: User
+- country: String
+- state: String
+- region: String
+- sponsors: [Sponsor]
+- rankings: [Ranking]
+
+### Participant
+- id: ID!
+- gamerTag: String!
+- event: Event!
+- team: Team
+- user: User
+- checkedIn: Boolean
+- requiredConnections: [Connection]
+
+### Entrant
+- id: ID!
+- name: String!
+- participants: [Participant]!
+- standing: Standing
+- initialSeedNum: Int
+- finalPlacement: Int
+- isDisqualified: Boolean
+
+### Standing
+- id: ID!
+- placement: Int!
+- isFinal: Boolean
+- totalPoints: Float
+- entrant: Entrant
+- event: Event
+- container: StandingContainer
+
+### Phase
+- id: ID!
+- name: String!
+- event: Event!
+- phaseOrder: Int
+- state: Int
+- phaseGroups: PhaseGroupConnection
+
+### PhaseGroup
+- id: ID!
+- displayIdentifier: String
+- phase: Phase!
+- startAt: DateTime
+- sets: SetConnection
+
+### Set
+- id: ID!
+- displayScore: String
+- fullRoundText: String
+- state: Int
+- winnerId: ID
+- stream: Stream
+- slots: [SetSlot]
+- games: [Game]
+
+### Game
+- id: ID!
+- orderNum: Int
+- winnerId: ID
+- entrant1Score: Int
+- entrant2Score: Int
+- stage: Stage
+- selections: [GameSelection]
+
+### Videogame
+- id: ID!
+- name: String!
+- displayName: String!
+- abbrev: String
+- characters: [Character]
+- stages: [Stage]
+
+## Input Objects
+
+### TournamentQueryInput
+- id: ID
+- slug: String
+- name: String
+- afterDate: DateTime
+- beforeDate: DateTime
+- city: String
+- state: String
+- countryCode: String
+- isOnline: Boolean
+
+### EventQueryInput
+- id: ID
+- slug: String
+- tournamentId: ID
+- videogameId: ID
+- name: String
+- type: Int
+
+### SetFilters
+- showByes: Boolean
+- state: [SetState]
+- phaseGroupId: ID
+- phaseId: ID
+- eventId: ID
+
+## Enums
+
+### SetState
+- CREATED
+- ACTIVE
+- COMPLETED
+- READY
+- INVALID
+
+### EventType
+- SINGLES
+- DOUBLES
+- CREWS
+- EXHIBITION
+- TOURNAMENT
+
+### TournamentState
+- CREATED
+- ACTIVE
+- COMPLETED
+- READY
+- INVALID
+
+### TeamMemberStatus
+- ACCEPTED
+- INVITED
+- REQUEST
+- BANNED
+
+## Connections
+Many objects support connection-based pagination, typically including:
+- edges: List of edges
+- nodes: List of objects
+- pageInfo: Pagination information
+- totalCount: Total number of items
+
+## Authentication and Scopes
+
+### OAuth Scopes
+- user.identity: Basic user information
+- user.email: Access to user's email
+- tournament.manager: Tournament administration
+- tournament.reporter: Set reporting
+
+## Best Practices
+1. Use pagination for large result sets
+2. Utilize filters to narrow down queries
+3. Select only the fields you need
+4. Be mindful of rate limits and query complexity
+
+## Rate Limits
+- 80 requests per 60 seconds
+- Maximum 1000 objects per request
+
+## Example Query Structure
+```graphql
+query {
+  tournament(slug: "tournament-slug") {
+    name
+    events {
+      name
+      standings(query: { perPage: 3 }) {
+        nodes {
+          placement
+          entrant {
+            name
+          }
+        }
+      }
+    }
+  }
+}

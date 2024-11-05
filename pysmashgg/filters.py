@@ -31,14 +31,32 @@ def show_filter(response):
 
     data = {}
 
-    data['id'] = response['data']['tournament']['id']
-    data['name'] = response['data']['tournament']['name']
-    data['country'] = response['data']['tournament']['countryCode']
-    data['state'] = response['data']['tournament']['addrState']
-    data['city'] = response['data']['tournament']['city']
-    data['startTimestamp'] = response['data']['tournament']['startAt']
-    data['endTimestamp'] = response['data']['tournament']['endAt']
-    data['entrants'] = response['data']['tournament']['numAttendees']
+    tournament = response['data']['tournament']
+    data['id'] = tournament['id']
+    data['name'] = tournament['name']
+    data['country'] = tournament['countryCode']
+    data['state'] = tournament['addrState']
+    data['city'] = tournament['city']
+    data['startTimestamp'] = tournament['startAt']
+    data['endTimestamp'] = tournament['endAt']
+    data['entrants'] = tournament['numAttendees']
+    
+    # Add new fields
+    if 'owner' in tournament:
+        data['owner'] = {
+            'id': tournament['owner']['id'],
+            'name': tournament['owner']['name']
+        }
+    if 'links' in tournament:
+        data['links'] = tournament['links']
+    if 'rules' in tournament:
+        data['rules'] = tournament['rules']
+    if 'publishing' in tournament:
+        data['publishing'] = tournament['publishing']
+    if 'streams' in tournament:
+        data['streams'] = tournament['streams']
+    if 'images' in tournament:
+        data['images'] = tournament['images']
 
     return data
 
@@ -753,14 +771,3 @@ def player_show_tournaments_filter(response):
         return
 
     tournaments = []
-
-    for node in response['data']['player']['user']['tournaments']['nodes']:
-        cur_tournament = {}
-        cur_tournament['name'] = node['name']
-        cur_tournament['slug'] = node['slug'].split('/')[-1]
-        cur_tournament['id'] = node['id']
-        cur_tournament['attendees'] = node['numAttendees']
-        cur_tournament['country'] = node['countryCode']
-        cur_tournament['unixTimestamp'] = node['startAt']
-
-        tournaments.appen

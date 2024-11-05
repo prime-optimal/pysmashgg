@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2024-11-05
+
+### Added
+- Enhanced tournament metadata display:
+  - Added tournament URL display using tournament slug
+  - Added tournament organizer name and ID display
+  - Added support for additional metadata fields in SHOW_QUERY:
+    - Social media links (discord, facebook)
+    - Tournament rules
+    - Publishing status
+    - Stream information
+    - Tournament images
+
+### Fixed
+- Fixed TypeError in search command's select feature when viewing tournament results
+- Added proper null checks for optional tournament metadata fields
+- Improved error handling for missing tournament organizer information
+
+### Changed
+- Updated SHOW_QUERY to include comprehensive tournament metadata
+- Enhanced show_filter function to handle new metadata fields
+- Improved tournament info display organization and formatting
+- Modified results command to handle optional metadata fields
+- Updated documentation with new metadata display features
+
 ## [1.6.0] - 2024-10-23
 
 ### Added

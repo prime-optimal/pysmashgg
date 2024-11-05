@@ -151,7 +151,12 @@ def search(
             console.print(f"\n[green]Selected tournament:[/] {selected_tournament['name']}")
             
             # Call the results command for the selected tournament
-            results_command(selected_tournament['slug'])
+            # Pass the slug as a string, not as a typer.Option
+            results_command(tournament_slug=selected_tournament['slug'], 
+                          json_file=None, 
+                          csv_file=None, 
+                          txt_file=None, 
+                          version=None)
         else:
             # Add tips about using the tournament slug
             console.print("\n[cyan]Tips:[/]")

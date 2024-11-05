@@ -49,6 +49,13 @@ ENTRANT_ID_QUERY = """query EventEntrants($eventId: ID!, $name: String!) {
     }"""
 
 # Query to get basic tournament metadata
+# Updated 2024-10-24: Added additional fields for tournament metadata:
+# - owner (id, name) for tournament organizer information
+# - links (discord, facebook) for social media
+# - rules for tournament rules
+# - publishing status
+# - streams information
+# - tournament images
 SHOW_QUERY = """query ($tourneySlug: String!) {
   tournament(slug: $tourneySlug) {
     id
@@ -59,6 +66,33 @@ SHOW_QUERY = """query ($tourneySlug: String!) {
     startAt
     endAt
     numAttendees
+    links {
+      discord
+      facebook
+    }
+    rules
+    publishing
+    streams {
+      id
+      streamName
+      streamSource
+      streamGame
+      streamStatus
+      streamType
+      isOnline
+      followerCount
+      streamLogo
+      parentStreamId
+      enabled
+    }
+    images {
+      id
+      url
+    }
+    owner {
+      id
+      name
+    }
   }
 }"""
 
