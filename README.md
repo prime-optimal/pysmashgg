@@ -121,14 +121,19 @@ For search results:
 - Interactive selection option
 
 For tournament results:
-1. Tournament information:
+
+1.  Tournament information:
    - Name and direct URL to tournament page
    - Location (city, state or "Online")
    - Date range
    - Number of entrants
    - Tournament organizer name and ID
-2. List of events in the tournament
-3. Top 8 results for each event, including total participant count
+2.  List of events in the tournament
+3.  Top 8 results for each event, including:
+   - Player placement and name
+   - Twitter handle (with @ symbol)
+   - Twitch username
+   - Total participant count
 
 ## Export Formats
 

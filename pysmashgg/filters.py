@@ -31,32 +31,14 @@ def show_filter(response):
 
     data = {}
 
-    tournament = response['data']['tournament']
-    data['id'] = tournament['id']
-    data['name'] = tournament['name']
-    data['country'] = tournament['countryCode']
-    data['state'] = tournament['addrState']
-    data['city'] = tournament['city']
-    data['startTimestamp'] = tournament['startAt']
-    data['endTimestamp'] = tournament['endAt']
-    data['entrants'] = tournament['numAttendees']
-    
-    # Add new fields
-    if 'owner' in tournament:
-        data['owner'] = {
-            'id': tournament['owner']['id'],
-            'name': tournament['owner']['name']
-        }
-    if 'links' in tournament:
-        data['links'] = tournament['links']
-    if 'rules' in tournament:
-        data['rules'] = tournament['rules']
-    if 'publishing' in tournament:
-        data['publishing'] = tournament['publishing']
-    if 'streams' in tournament:
-        data['streams'] = tournament['streams']
-    if 'images' in tournament:
-        data['images'] = tournament['images']
+    data['id'] = response['data']['tournament']['id']
+    data['name'] = response['data']['tournament']['name']
+    data['country'] = response['data']['tournament']['countryCode']
+    data['state'] = response['data']['tournament']['addrState']
+    data['city'] = response['data']['tournament']['city']
+    data['startTimestamp'] = response['data']['tournament']['startAt']
+    data['endTimestamp'] = response['data']['tournament']['endAt']
+    data['entrants'] = response['data']['tournament']['numAttendees']
 
     return data
 
@@ -491,8 +473,8 @@ def show_lightweight_results_filter(response):
     if response['data']['event'] is None:
         return
     if response['data']['event']['standings']['nodes'] is None:
-        return
-
+        return 
+    
     entrants = []
 
     for node in response['data']['event']['standings']['nodes']:
@@ -500,6 +482,16 @@ def show_lightweight_results_filter(response):
         cur_entrant['placement'] = node['placement']
         cur_entrant['name'] = node['entrant']['name'].split(' | ')[-1]
         cur_entrant['id'] = node['entrant']['id']
+        
+        # Add social media info
+        cur_entrant['socials'] = {}
+        if node['entrant']['participants']:
+            for participant in node['entrant']['participants']:
+                if participant.get('player') and participant['player'].get('user'):
+                    if participant['player']['user'].get('authorizations'):
+                        for auth in participant['player']['user']['authorizations']:
+                            if auth['type'] and auth['externalUsername']:
+                                cur_entrant['socials'][auth['type'].lower()] = auth['externalUsername']
 
         entrants.append(cur_entrant)
 
@@ -741,15 +733,24 @@ def bracket_show_sets_filter(response):
 
 # Filter for the get_info function
 def player_show_info_filter(response):
+    if not response or 'data' not in response:
+        return None
     if response['data']['player'] is None:
-        return
+        return None
     if response['data']['player']['user'] is None:
-        return
+        return None
 
     player = {}
     player['tag'] = response['data']['player']['gamerTag']
     player['name'] = response['data']['player']['user']['name']
-    player['bio'] = response['data']['player']['user']['name']
+    
+    # Process social media authorizations
+    player['socials'] = {}
+    if response['data']['player']['user'].get('authorizations'):
+        for auth in response['data']['player']['user']['authorizations']:
+            if auth['type'] and auth['externalUsername']:
+                player['socials'][auth['type'].lower()] = auth['externalUsername']
+    
     if response['data']['player']['user']['location'] is not None:
         player['country'] = response['data']['player']['user']['location']['country']
         player['state'] = response['data']['player']['user']['location']['state']
@@ -763,6 +764,24 @@ def player_show_info_filter(response):
 
     return player
 
+# Filter to show league
+def league_show_filter(response):
+    if response['data']['league'] is None:
+        return
+
+    league = {}
+    league_data = response['data']['league']
+    league['id'] = league_data['id']
+    league['name'] = league_data['name']
+    league['startAt'] = league_data.get('startAt')
+    league['endAt'] = league_data.get('endAt')
+    if 'slug' in league_data:
+        league['slug'] = league_data['slug']
+
+    return league
+
+
+
 # Filter for the get_tournaments function
 def player_show_tournaments_filter(response):
     if response['data']['player'] is None:
@@ -771,3 +790,14 @@ def player_show_tournaments_filter(response):
         return
 
     tournaments = []
+
+    for node in response['data']['player']['user']['tournaments']['nodes']:
+        cur_tournament = {}
+        cur_tournament['name'] = node['name']
+        cur_tournament['slug'] = node['slug'].split('/')[-1]
+        cur_tournament['id'] = node['id']
+        cur_tournament['attendees'] = node['numAttendees']
+        cur_tournament['country'] = node['countryCode']
+        cur_tournament['unixTimestamp'] = node['startAt']
+
+        tournaments.appen

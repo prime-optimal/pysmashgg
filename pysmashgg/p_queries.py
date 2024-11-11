@@ -6,6 +6,11 @@ PLAYER_SHOW_INFO_QUERY = """query ($playerId: ID!) {
     user {
       name
       genderPronoun
+      authorizations(types: [TWITTER, TWITCH, DISCORD]) {
+        type
+        externalUsername
+        url
+      }
       location {
         country
         state

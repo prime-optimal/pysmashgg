@@ -297,15 +297,24 @@ SHOW_EVENT_BY_GAME_SIZE_DATED_QUERY = """query TournamentsByVideogame($page: Int
 # Query to get lightweight event results
 SHOW_LIGHTWEIGHT_RESULTS_QUERY = """query EventStandings($eventId: ID!, $page: Int!,) {
   event(id: $eventId) {
-    standings(query: {
-      perPage: 64,
-      page: $page
-    }){
+    standings(query: {perPage: 64, page: $page}) {
       nodes {
         placement
         entrant {
           name
           id
+          participants {
+            player {
+              gamerTag
+              user {
+                authorizations(types: [TWITTER, TWITCH, DISCORD]) {
+                  type
+                  externalUsername
+                  url
+                }
+              }
+            }
+          }
         }
       }
     }
