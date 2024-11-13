@@ -79,35 +79,43 @@ The search command displays:
 
 When using the `--select` option, you can choose a tournament from the list to immediately view its results.
 
+
 ### Get Tournament Results
 
-Fetch and display Top 8 results for all events in a tournament:
+The results command can be used in two ways:
+
+1. View tournament results:
 ```bash
 python startgg.py results <tournament-slug> [OPTIONS]
 ```
 
-Export options:
+2. View player tournament placements:
+```bash
+python startgg.py results --player <player-id> --game <game-id>
+```
+
+Tournament results options:
 - `--json`, `-j`: Export results in JSON format
 - `--csv`, `-c`: Export results in CSV format
 - `--txt`, `-t`: Export results in TXT format
 
-Example:
+Player results options:
+- `--player`, `-p`: Player profile ID from their start.gg URL (e.g., "06989544" from start.gg/user/06989544)
+- `--game`, `-g`: Game ID (required with --player, e.g., "38" for King of Fighters XIV)
+
+Examples:
 ```bash
+# View tournament results
+python startgg.py results tns-street-fighter-6-69
+
+# Export tournament results to JSON
 python startgg.py results tns-street-fighter-6-69 --json results.json
+
+# View player's tournament placements
+python startgg.py results --player 06989544 --game 38
 ```
 
-### Help
-
-To see all available commands and options:
-```bash
-python startgg.py --help
-```
-
-For help with a specific command:
-```bash
-python startgg.py search --help
-python startgg.py results --help
-```
+[Rest of the file remains the same until "Output" section, then update that section:]
 
 ## Output
 
@@ -121,43 +129,28 @@ For search results:
 - Interactive selection option
 
 For tournament results:
-
-1.  Tournament information:
+1. Tournament information:
    - Name and direct URL to tournament page
    - Location (city, state or "Online")
    - Date range
    - Number of entrants
    - Tournament organizer name and ID
-2.  List of events in the tournament
-3.  Top 8 results for each event, including:
+2. List of events in the tournament
+3. Top 8 results for each event, including:
    - Player placement and name
    - Twitter handle (with @ symbol)
    - Twitch username
    - Total participant count
 
-## Export Formats
+For player results:
+1. Player information:
+   - Gamer tag and prefix
+   - Player ID
+   - Location
+2. Recent tournament placements:
+   - Tournament name and event
+   - Placement (with medals for top 3: 🥇, 🥈, 🥉)
+   - Number of entrants
+   - Date
+   - Online/Offline indicator
 
-Results can be exported in three formats:
-
-1. JSON:
-   - Structured data format
-   - Includes all event results
-   - Ideal for programmatic use
-
-2. CSV:
-   - Comma-separated values
-   - Easy to import into spreadsheets
-   - One row per player placement
-
-3. TXT:
-   - Plain text format
-   - Human-readable
-   - Formatted similar to console output
-
-## Contributing
-
-Feel free to open issues or submit pull requests if you have suggestions for improvements or encounter any bugs.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
