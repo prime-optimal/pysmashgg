@@ -10,10 +10,15 @@ from rich.table import Table
 from .. import app, console
 from ..exporters.results_exporter import export_results
 from ..formatters.results import create_results_table
+from ..formatters.sets import create_sets_table
 from pysmashgg.tournaments import show_events
 from pysmashgg.api import run_query
 from pysmashgg.t_queries import SHOW_LIGHTWEIGHT_RESULTS_QUERY
-from pysmashgg.p_queries import PLAYER_RECENT_PLACEMENTS_QUERY, PLAYER_LOOKUP_ID_QUERY
+from pysmashgg.p_queries import (
+    PLAYER_RECENT_PLACEMENTS_QUERY, 
+    PLAYER_LOOKUP_ID_QUERY,
+    PLAYER_SETS_QUERY
+)
 from pysmashgg import filters
 
 # Import the global SmashGG instance
@@ -192,6 +197,7 @@ def results(
     tournament_slug: Optional[str] = typer.Argument(None, help="The tournament slug (e.g., 'tns-street-fighter-6-69')"),
     player_slug: Optional[str] = typer.Option(None, "--player", "-p", help="Get recent placements for a player (use their profile slug/ID from start.gg URL)"),
     game_id: Optional[str] = typer.Option(None, "--game", "-g", help="Game ID for player placements (required with --player)"),
+    sets: bool = typer.Option(False, "--sets", "-s", help="Show player's sets for their recent events"),
     json_file: Optional[Path] = typer.Option(None, "--json", "-j", help="Export results to JSON file"),
     csv_file: Optional[Path] = typer.Option(None, "--csv", "-c", help="Export results to CSV file"),
     txt_file: Optional[Path] = typer.Option(None, "--txt", "-t", help="Export results to TXT file"),
@@ -200,25 +206,29 @@ def results(
 ):
     """Fetch and display tournament results or player placements.
     
-    This command can be used in two ways:
+    This command can be used in several ways:
     1. View tournament results by providing a tournament slug
     2. View a player's recent placements by providing their profile slug/ID and game ID
+    3. View a player's recent sets by adding the --sets flag
     
     Examples:
     1. Get tournament results:
         python startgg.py results tournament-slug
         
     2. Get player placements:
-        python startgg.py results --player "06989544" --game "38"
+        python startgg.py results --player "06989544" --game "43868"
         
-    Note: For player placements, use the ID from their start.gg profile URL.
+    3. Get player sets:
+        python startgg.py results --player "06989544" --game "43868" --sets
+        
+    Note: For player data, use the ID from their start.gg profile URL.
     For example, if their profile is at start.gg/user/06989544, use "06989544".
     """
     try:
-        # Handle player placements
+        # Handle player placements and sets
         if player_slug:
             if not game_id:
-                console.print("[red]Error: --game option is required when viewing player placements[/]")
+                console.print("[red]Error: --game option is required when viewing player data[/]")
                 return
                 
             # First lookup the player's ID using their discriminator slug
@@ -242,6 +252,28 @@ def results(
                 variables = {"playerId": player_id, "videogameId": str(game_id_int)}
                 response = run_query(PLAYER_RECENT_PLACEMENTS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
                 display_player_placements(response)
+
+            # If sets flag is set, fetch and display sets
+            if sets:
+                # Get the most recent event ID from placements
+                if (response and 'data' in response and 
+                    response['data'].get('player') and 
+                    response['data']['player'].get('recentStandings')):
+                    
+                    standings = response['data']['player']['recentStandings']
+                    if standings:
+                        recent_event = standings[0]['entrant']['event']
+                        event_id = recent_event['id']
+                        is_online = recent_event['isOnline']
+                        
+                        with console.status(f"[bold green]Fetching sets for most recent event..."):
+                            variables = {
+                                "playerId": player_id,
+                                "isOnline": is_online,
+                                "eventId": [event_id]
+                            }
+                            sets_response = run_query(PLAYER_SETS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
+                            create_sets_table(sets_response)
             return
 
         # Handle tournament results

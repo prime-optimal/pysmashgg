@@ -82,7 +82,7 @@ When using the `--select` option, you can choose a tournament from the list to i
 
 ### Get Tournament Results
 
-The results command can be used in two ways:
+The results command can be used in three ways:
 
 1. View tournament results:
 ```bash
@@ -94,6 +94,11 @@ python startgg.py results <tournament-slug> [OPTIONS]
 python startgg.py results --player <player-id> --game <game-id>
 ```
 
+3. View player's recent sets:
+```bash
+python startgg.py results --player <player-id> --game <game-id> --sets
+```
+
 Tournament results options:
 - `--json`, `-j`: Export results in JSON format
 - `--csv`, `-c`: Export results in CSV format
@@ -101,7 +106,8 @@ Tournament results options:
 
 Player results options:
 - `--player`, `-p`: Player profile ID from their start.gg URL (e.g., "06989544" from start.gg/user/06989544)
-- `--game`, `-g`: Game ID (required with --player, e.g., "38" for King of Fighters XIV)
+- `--game`, `-g`: Game ID (required with --player, e.g., "43868" for Street Fighter 6)
+- `--sets`, `-s`: Show player's sets from their most recent event
 
 Examples:
 ```bash
@@ -112,10 +118,11 @@ python startgg.py results tns-street-fighter-6-69
 python startgg.py results tns-street-fighter-6-69 --json results.json
 
 # View player's tournament placements
-python startgg.py results --player 06989544 --game 38
-```
+python startgg.py results --player 06989544 --game 43868
 
-[Rest of the file remains the same until "Output" section, then update that section:]
+# View player's recent sets
+python startgg.py results --player 06989544 --game 43868 --sets
+```
 
 ## Output
 
@@ -153,4 +160,10 @@ For player results:
    - Number of entrants
    - Date
    - Online/Offline indicator
-
+3. Recent sets (when using --sets):
+   - Date and time of each match
+   - Round information
+   - Opponent name
+   - Match score (colored green for wins, red for losses)
+   - Special handling for DQs ("W - DQ" or "DQ - W")
+   - Event name
