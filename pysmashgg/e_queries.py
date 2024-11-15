@@ -1,5 +1,26 @@
-# Queries for events.py
+# Event-specific queries
 
+# Query to get a player's ID from an event
+PLAYER_ID_QUERY = """query EventEntrants($eventId: ID!, $name: String!) {
+    event(id: $eventId) {
+    entrants(query: {
+      page: 1
+      perPage: 32
+      filter: {name: $name}
+    }) {
+      nodes {
+        participants {
+          gamerTag
+          player {
+            id
+          }
+        }
+      }
+    }
+    }
+    }"""
+
+# Query to get an entrant's ID from an event
 ENTRANT_ID_QUERY = """query EventEntrants($eventId: ID!, $name: String!) {
     event(id: $eventId) {
     entrants(query: {
@@ -17,7 +38,29 @@ ENTRANT_ID_QUERY = """query EventEntrants($eventId: ID!, $name: String!) {
     }
     }"""
 
+# Query to get an event's ID from a tournament
+EVENT_ID_QUERY = """query ($tourneySlug: String!) {
+  tournament(slug: $tourneySlug) {
+    events {
+      id
+      slug
+    }
+  }
+}"""
 
+# Query to get all events from a tournament
+SHOW_EVENTS_QUERY = """query ($tourneySlug: String!) {
+  tournament(slug: $tourneySlug) {
+    events {
+      id
+      name
+      slug
+      numEntrants
+    }
+  }
+}"""
+
+# Query to get all sets from an event
 SHOW_SETS_QUERY = """query EventSets($eventId: ID!, $page: Int!) {
   event(id: $eventId) {
     tournament {
@@ -58,7 +101,6 @@ SHOW_SETS_QUERY = """query EventSets($eventId: ID!, $page: Int!) {
               player {
                 id
                 gamerTag
-                
               }
             }
           }
@@ -74,13 +116,13 @@ SHOW_SETS_QUERY = """query EventSets($eventId: ID!, $page: Int!) {
   }
 }"""
 
-
+# Query to get all entrants from an event
 SHOW_ENTRANTS_QUERY = """query EventStandings($eventId: ID!, $page: Int!) {
   event(id: $eventId) {
     id
     name
     standings(query: {
-      perPage: 24,
+      perPage: 25,
       page: $page}){
       nodes {
         placement
@@ -102,6 +144,20 @@ SHOW_ENTRANTS_QUERY = """query EventStandings($eventId: ID!, $page: Int!) {
   }
 }"""
 
+# Query to get event bracket information
+SHOW_EVENT_BRACKETS_QUERY = """query ($tourneySlug: String!) {
+  tournament(slug: $tourneySlug) {
+    events {
+      name
+      slug
+      phaseGroups {
+        id
+      }
+    }
+  }
+}"""
+
+# Query to get sets for a specific entrant
 SHOW_ENTRANT_SETS_QUERY = """query EventSets($eventId: ID!, $entrantId: ID!, $page: Int!) {
   event(id: $eventId) {
     sets(
@@ -136,17 +192,27 @@ SHOW_ENTRANT_SETS_QUERY = """query EventSets($eventId: ID!, $entrantId: ID!, $pa
   }
 }"""
 
+# Query to get lightweight event results
 SHOW_LIGHTWEIGHT_RESULTS_QUERY = """query EventStandings($eventId: ID!, $page: Int!,) {
   event(id: $eventId) {
-    standings(query: {
-      perPage: 64,
-      page: $page
-    }){
+    standings(query: {perPage: 64, page: $page}) {
       nodes {
         placement
         entrant {
           name
           id
+          participants {
+            player {
+              gamerTag
+              user {
+                authorizations(types: [TWITTER, TWITCH, DISCORD]) {
+                  type
+                  externalUsername
+                  url
+                }
+              }
+            }
+          }
         }
       }
     }

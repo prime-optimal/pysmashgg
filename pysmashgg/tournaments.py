@@ -7,8 +7,28 @@ Recent changes:
 """
 
 from pysmashgg import filters, videogame_filters
-from pysmashgg.t_queries import *
 from pysmashgg.api import run_query
+from pysmashgg.queries import (
+    PLAYER_ID_QUERY,
+    ENTRANT_ID_QUERY,
+    EVENT_ID_QUERY,
+    SHOW_QUERY,
+    SHOW_WITH_BRACKETS_QUERY,
+    SHOW_EVENTS_QUERY,
+    SHOW_SETS_QUERY,
+    SHOW_ENTRANTS_QUERY,
+    SHOW_EVENT_BRACKETS_QUERY,
+    SHOW_ENTRANT_SETS_QUERY,
+    SHOW_EVENT_BY_GAME_SIZE_DATED_QUERY,
+    SHOW_LIGHTWEIGHT_RESULTS_QUERY,
+    SHOW_BY_COUNTRY_QUERY,
+    SHOW_BY_STATE_QUERY,
+    SHOW_BY_RADIUS_QUERY,
+    SHOW_PLAYERS_BY_SPONSOR,
+    SHOW_BY_OWNER_QUERY,
+    GET_VIDEOGAME_ID_QUERY,
+    SHOW_BY_VIDEOGAME_QUERY
+)
 from datetime import datetime, timedelta
 import time
 
@@ -72,7 +92,7 @@ def show_sets(tournament_name, event_name, page_num, header, auto_retry):
     response = run_query(SHOW_SETS_QUERY, variables, header, auto_retry)
     data = filters.show_sets_filter(response)
     return data
-            
+
 def show_entrants(tournament_name, event_name, page_num, header, auto_retry):
     """Get all entrants from a specific event"""
     event_id = get_event_id(tournament_name, event_name, header, auto_retry)
@@ -172,7 +192,7 @@ def get_videogame_id(game_name, header, auto_retry):
 
 def show_by_videogame(videogame_id, page_num, header, auto_retry, after=None, before=None):
     """Shows a list of tournaments for a specific video game
-    
+
     Args:
         videogame_id: The ID of the video game to search for
         page_num: The page number of results to return

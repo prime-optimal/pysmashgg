@@ -1,5 +1,8 @@
 from pysmashgg import filters
-from pysmashgg.b_queries import *
+from pysmashgg.queries import (
+    BRACKET_SHOW_ENTRANTS_QUERY,
+    BRACKET_SHOW_SETS_QUERY
+)
 from pysmashgg.api import run_query
 
 # Shows all the players in a bracket (aka phaseGroup)

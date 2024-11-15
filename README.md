@@ -1,169 +1,120 @@
-# Start.gg Tournament Results CLI
+# pysmashgg
 
-A command-line interface for fetching and displaying tournament information from Start.gg (formerly Smash.gg).
-
-## Requirements
-
-- Python 3.6+
-- `pysmashgg` library
-- `python-dotenv` library
-- `typer` library
-- `rich` library
+A Python wrapper for the start.gg API (formerly smash.gg).
 
 ## Installation
 
-1. Clone this repository
-2. Install the required libraries:
-   ```
-   pip install pysmashgg python-dotenv "typer[all]"
-   ```
-3. Create a `.env` file in the project root and add your Start.gg API key:
-   ```
-   KEY=your_api_key_here
-   ```
+```bash
+pip install pysmashgg
+```
+
+## Development Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/pysmashgg.git
+cd pysmashgg
+```
+
+2. Create a virtual environment and activate it:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up pre-commit hooks:
+```bash
+pre-commit install
+```
+
+This will automatically run tests before each commit to ensure code quality.
+
+5. Create a .env file with your start.gg API key:
+```bash
+echo "KEY=your_api_key_here" > .env
+```
+
+## Running Tests
+
+Tests can be run manually with:
+```bash
+python -m unittest tests/tests.py
+```
+
+Tests will also run automatically before each commit thanks to pre-commit hooks.
 
 ## Usage
 
-The CLI provides two main commands: `search` and `results`.
+### Basic Examples
 
-### Search for Tournaments
+```python
+import os
+from dotenv import load_dotenv
+import pysmashgg
 
-You can search for tournaments in three ways:
+# Load API key from environment
+load_dotenv()
+smash = pysmashgg.SmashGG(os.getenv('KEY'))
 
-1. Using a tournament slug to find the organizer and their tournaments:
-```bash
-python startgg.py search --tournament <tournament-slug>
+# Get tournament info
+tournament = smash.tournament_show("can-opener-series-vol-140-adventures-of-buss-ass")
+
+# Get player info
+player = smash.player_show_info("06989544")
+
+# Get tournament results
+results = smash.tournament_show_results("can-opener-series-vol-140-adventures-of-buss-ass")
 ```
 
-2. Directly using the tournament organizer's ID:
-```bash
-python startgg.py search --owner <owner-id>
-```
+### Command Line Interface
 
-3. By game name to find upcoming tournaments:
+The package includes a command-line interface for common operations:
+
 ```bash
+# Show tournament results
+python startgg.py results can-opener-series-vol-140-adventures-of-buss-ass
+
+# Export tournament results to files
+python startgg.py results can-opener-series-vol-140-adventures-of-buss-ass --json results.json --csv results.csv
+
+# Show player info (no game ID needed)
+python startgg.py player info 06989544
+
+# Show player results (requires game ID, e.g. 43868 for Street Fighter 6)
+python startgg.py player results 06989544 43868
+
+# Show player sets from most recent event
+python startgg.py player sets 06989544 43868
+
+# Search for tournaments or players
+python startgg.py search --player 06989544
 python startgg.py search --game "Street Fighter 6"
-```
 
-Search options:
-- `--tournament`, `-t`: Search using a tournament slug to find the organizer
-- `--owner`, `-o`: Search directly with a tournament organizer's ID
-- `--game`, `-g`: Search for tournaments by game name
-- `--page`, `-p`: Page number for results (default: 1)
-- `--limit`, `-l`: Number of tournaments to display (default: 10)
-- `--select`, `-s`: Interactively select a tournament to view its results
+# Search for tournaments by owner ID
+python startgg.py search --owner 123456
 
-Examples:
-```bash
-# Find tournaments by a known tournament slug
-python startgg.py search --tournament tns-street-fighter-6-69
-
-# Display first 5 tournaments for owner ID 161429
-python startgg.py search --owner 161429 --limit 5
+# Search using tournament slug to find more by same organizer
+python startgg.py search --tournament can-opener-series-vol-140-adventures-of-buss-ass
 
 # Search with interactive selection
-python startgg.py search --owner 161429 --select
-
-# View next page of results
-python startgg.py search --owner 161429 --page 2
-
-# Find upcoming Street Fighter 6 tournaments
-python startgg.py search --game "Street Fighter 6"
+python startgg.py search --game "Street Fighter 6" --select
 ```
 
-The search command displays:
-- Tournament name and slug
-- Event date
-- Location (shows "Online" for online tournaments)
-- Number of entrants
+## Contributing
 
-When using the `--select` option, you can choose a tournament from the list to immediately view its results.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests to ensure everything works (`python -m unittest tests/tests.py`)
+5. Commit your changes (tests will run automatically)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
+## License
 
-### Get Tournament Results
-
-The results command can be used in three ways:
-
-1. View tournament results:
-```bash
-python startgg.py results <tournament-slug> [OPTIONS]
-```
-
-2. View player tournament placements:
-```bash
-python startgg.py results --player <player-id> --game <game-id>
-```
-
-3. View player's recent sets:
-```bash
-python startgg.py results --player <player-id> --game <game-id> --sets
-```
-
-Tournament results options:
-- `--json`, `-j`: Export results in JSON format
-- `--csv`, `-c`: Export results in CSV format
-- `--txt`, `-t`: Export results in TXT format
-
-Player results options:
-- `--player`, `-p`: Player profile ID from their start.gg URL (e.g., "06989544" from start.gg/user/06989544)
-- `--game`, `-g`: Game ID (required with --player, e.g., "43868" for Street Fighter 6)
-- `--sets`, `-s`: Show player's sets from their most recent event
-
-Examples:
-```bash
-# View tournament results
-python startgg.py results tns-street-fighter-6-69
-
-# Export tournament results to JSON
-python startgg.py results tns-street-fighter-6-69 --json results.json
-
-# View player's tournament placements
-python startgg.py results --player 06989544 --game 43868
-
-# View player's recent sets
-python startgg.py results --player 06989544 --game 43868 --sets
-```
-
-## Output
-
-The CLI provides rich, formatted output including:
-
-For search results:
-- Tournament names and slugs
-- Event dates and locations
-- Number of entrants
-- Tournament organizer information (when searching by tournament slug)
-- Interactive selection option
-
-For tournament results:
-1. Tournament information:
-   - Name and direct URL to tournament page
-   - Location (city, state or "Online")
-   - Date range
-   - Number of entrants
-   - Tournament organizer name and ID
-2. List of events in the tournament
-3. Top 8 results for each event, including:
-   - Player placement and name
-   - Twitter handle (with @ symbol)
-   - Twitch username
-   - Total participant count
-
-For player results:
-1. Player information:
-   - Gamer tag and prefix
-   - Player ID
-   - Location
-2. Recent tournament placements:
-   - Tournament name and event
-   - Placement (with medals for top 3: 🥇, 🥈, 🥉)
-   - Number of entrants
-   - Date
-   - Online/Offline indicator
-3. Recent sets (when using --sets):
-   - Date and time of each match
-   - Round information
-   - Opponent name
-   - Match score (colored green for wins, red for losses)
-   - Special handling for DQs ("W - DQ" or "DQ - W")
-   - Event name
+This project is licensed under the MIT License - see the LICENSE.md file for details.

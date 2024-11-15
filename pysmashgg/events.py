@@ -1,5 +1,11 @@
 from pysmashgg import filters
-from pysmashgg.e_queries import *
+from pysmashgg.queries import (
+    ENTRANT_ID_QUERY,
+    SHOW_SETS_QUERY,
+    SHOW_ENTRANTS_QUERY,
+    SHOW_ENTRANT_SETS_QUERY,
+    SHOW_LIGHTWEIGHT_RESULTS_QUERY
+)
 from pysmashgg.api import run_query
 
 # Helper function to get entrantId at an event
@@ -9,14 +15,14 @@ def get_entrant_id(event_id, player_name, header, auto_retry):
     data = response['data']['event']['entrants']['nodes'][0]['id']
     return data
 
-# Shows all the sets from an event 
+# Shows all the sets from an event
 def show_sets(event_id, page_num, header, auto_retry):
     variables = {"eventId": event_id, "page": page_num}
     response = run_query(SHOW_SETS_QUERY, variables, header, auto_retry)
     data = filters.show_sets_filter(response)
     return data
-            
-# Shows all entrants from a specific event 
+
+# Shows all entrants from a specific event
 def show_entrants(event_id, page_num, header, auto_retry):
     variables = {"eventId": event_id, "page": page_num}
     response = run_query(SHOW_ENTRANTS_QUERY, variables, header, auto_retry)

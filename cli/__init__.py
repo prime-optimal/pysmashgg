@@ -1,12 +1,11 @@
-"""CLI package for pysmashgg."""
+"""Command-line interface for pysmashgg."""
 
-from typing import Optional
 import typer
 from rich.console import Console
 
-app = typer.Typer(help="Fetch and display Smash.gg tournament information")
+__version__ = "0.2.0"  # Updated version for new player command
+
+app = typer.Typer(help="Command-line interface for pysmashgg")
 console = Console()
 
-from .commands import search, results  # noqa
-
-__version__ = "1.4.0"
+from .commands import search, results, player  # noqa

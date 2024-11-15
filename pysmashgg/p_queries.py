@@ -24,6 +24,35 @@ PLAYER_SHOW_INFO_QUERY = """query ($playerId: ID!) {
   }
 } """
 
+PLAYER_INFO_QUERY = """query ($playerId: ID!) {
+  player(id: $playerId) {
+    id
+    gamerTag
+    prefix
+    user {
+      name
+      discriminator
+      slug
+      images {
+        height
+        width
+        url
+        type
+      }
+      authorizations(types: [TWITTER, TWITCH, DISCORD]) {
+        type
+        externalUsername
+        url
+      }
+      location {
+        country
+        state
+        city
+      }
+    }
+  }
+}"""
+
 PLAYER_SHOW_TOURNAMENTS_QUERY = """query ($playerId: ID!, $page: Int!) {
   player (id: $playerId) {
     user {
@@ -157,6 +186,7 @@ PLAYER_RECENT_PLACEMENTS_QUERY = """query ($playerId: ID!, $videogameId: ID!) {
           slug
           isOnline
           numEntrants
+          startAt
           tournament {
             name
             startAt
@@ -186,6 +216,49 @@ PLAYER_LOOKUP_ID_QUERY = """query LookupPlayerId($discriminatorSlug: String!) {
   user(slug: $discriminatorSlug) {
     player {
       id
+    }
+  }
+}"""
+
+PLAYER_SETS_QUERY = """query Sets($playerId: ID!, $isOnline: Boolean!, $eventId: [ID]) {
+  player(id: $playerId) {
+    id
+    gamerTag
+    user {
+      slug
+    }
+    sets(perPage: 15, page: 1, filters: {isEventOnline: $isOnline, eventIds: $eventId}) {
+      nodes {
+        id
+        fullRoundText
+        displayScore
+        slots(includeByes: true) {
+          id
+          entrant {
+            id
+            name
+          }
+          standing {
+            stats {
+              score {
+                value
+              }
+            }
+          }
+        }
+        winnerId
+        completedAt
+        event {
+          id
+          numEntrants
+          isOnline
+          tournament {
+            name
+            slug
+            startAt
+          }
+        }
+      }
     }
   }
 }"""
