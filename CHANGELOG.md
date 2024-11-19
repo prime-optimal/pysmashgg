@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.14.0] - 2024-11-19
+
+### Changed
+- Enhanced player results command:
+  - Made game ID parameter optional
+  - Added tournament statistics display (1st, 2nd, 3rd place counts)
+  - Added online/offline tournament percentage breakdown
+  - Added interactive game selection for filtered results
+  - Improved tournament display with separate game column
+  - Added "Tournaments by Game" summary with game IDs
+  - Fixed tournament name display to show correct tournament names
+
 ## [1.13.0] - 2024-11-15
 
 ### Added

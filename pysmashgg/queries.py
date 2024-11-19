@@ -33,6 +33,7 @@ from pysmashgg.location_queries import (
 
 from pysmashgg.p_queries import (
     PLAYER_RECENT_PLACEMENTS_QUERY,
+    PLAYER_RECENT_GAME_PLACEMENTS_QUERY,
     PLAYER_LOOKUP_ID_QUERY,
     PLAYER_SETS_QUERY,
     PLAYER_INFO_QUERY,
@@ -85,6 +86,7 @@ __all__ = [
 
     # Player queries
     'PLAYER_RECENT_PLACEMENTS_QUERY',
+    'PLAYER_RECENT_GAME_PLACEMENTS_QUERY',
     'PLAYER_LOOKUP_ID_QUERY',
     'PLAYER_SETS_QUERY',
     'PLAYER_INFO_QUERY',

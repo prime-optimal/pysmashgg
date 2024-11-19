@@ -1,6 +1,7 @@
 """Player-related command implementation."""
 
 import typer
+from typing import Optional
 
 from .. import app, console
 from ..formatters.player import display_player_info, display_player_placements
@@ -11,6 +12,7 @@ from pysmashgg.api import run_query
 from pysmashgg.queries import (
     PLAYER_INFO_QUERY,
     PLAYER_RECENT_PLACEMENTS_QUERY,
+    PLAYER_RECENT_GAME_PLACEMENTS_QUERY,
     PLAYER_SETS_QUERY
 )
 
@@ -47,31 +49,30 @@ def player_info(
 @player_app.command(name="results")
 def player_results(
     player_slug: str = typer.Argument(..., help="The player's profile slug/ID from their start.gg URL"),
-    game_id: str = typer.Argument(..., help="Game ID to get results for")
+    game_id: Optional[str] = typer.Option(None, "--game", "-g", help="Game ID to filter results for")
 ):
     """Show a player's recent tournament results."""
     try:
-        # First lookup the player's ID using their discriminator slug
-        with console.status(f"[bold green]Looking up player ID for {player_slug}..."):
-            player_id = lookup_player_id(player_slug, startgg.smash.header, startgg.smash.auto_retry)
-            if not player_id:
-                console.print("[red]Could not find player ID. Make sure the profile slug/ID is correct.[/]")
-                return
+        # Get initial response
+        response = None
+        with console.status(f"[bold green]Fetching placements...") as status:
+            if game_id:
+                # Validate game_id as numeric
+                try:
+                    game_id_int = int(game_id)
+                except ValueError:
+                    console.print("[red]Error: Game ID must be a numeric value[/]")
+                    return
 
-            console.print(f"[green]Found player ID: {player_id}[/]")
+                variables = {"slug": player_slug, "gameID": str(game_id_int)}
+                response = run_query(PLAYER_RECENT_GAME_PLACEMENTS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
+            else:
+                variables = {"slug": player_slug}
+                response = run_query(PLAYER_RECENT_PLACEMENTS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
 
-        # Validate game_id as numeric
-        try:
-            game_id_int = int(game_id)
-        except ValueError:
-            console.print("[red]Error: Game ID must be a numeric value[/]")
-            return
-
-        # Fetch placements
-        with console.status(f"[bold green]Fetching placements..."):
-            variables = {"playerId": player_id, "videogameId": str(game_id_int)}
-            response = run_query(PLAYER_RECENT_PLACEMENTS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
-            display_player_placements(response)
+        # Display results and handle game selection after status context is closed
+        if response:
+            display_player_placements(response, startgg.smash.header, startgg.smash.auto_retry)
     except Exception as e:
         console.print(f"[red]Error:[/] {str(e)}")
         raise typer.Exit(code=1)
@@ -103,17 +104,18 @@ def player_sets(
             status.update(status="[bold green]Finding most recent event...")
 
             # Get placements to find the most recent event and display player info
-            variables = {"playerId": player_id, "videogameId": str(game_id_int)}
+            variables = {"slug": player_slug}
             response = run_query(PLAYER_RECENT_PLACEMENTS_QUERY, variables, startgg.smash.header, startgg.smash.auto_retry)
 
             # Display player info before showing sets
             create_player_info_panel(response)
 
             if (response and 'data' in response and
-                response['data'].get('player') and
-                response['data']['player'].get('recentStandings')):
+                response['data'].get('user') and
+                response['data']['user'].get('player') and
+                response['data']['user']['player'].get('recentStandings')):
 
-                standings = response['data']['player']['recentStandings']
+                standings = response['data']['user']['player']['recentStandings']
                 if standings:
                     recent_event = standings[0]['entrant']['event']
                     event_id = recent_event['id']

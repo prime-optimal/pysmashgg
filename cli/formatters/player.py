@@ -2,15 +2,74 @@
 
 from datetime import datetime
 from rich.table import Table
+from rich.prompt import IntPrompt
+from rich.panel import Panel
+from collections import defaultdict
 
 from .. import console
-from .player_info import create_player_info_panel
+from ..formatters.player_info import create_player_info_panel
+from pysmashgg.api import run_query
+from pysmashgg.queries import PLAYER_RECENT_GAME_PLACEMENTS_QUERY
 
 def display_player_info(player_data):
     """Format and display player information in a rich panel."""
     create_player_info_panel(player_data)
 
-def display_player_placements(placements_data):
+def display_tournament_stats(processed_standings):
+    """Display tournament statistics."""
+    # Count placements
+    placement_counts = {
+        "1st": 0,
+        "2nd": 0,
+        "3rd": 0
+    }
+
+    # Count tournament types
+    tournament_types = {
+        "Online": 0,
+        "Offline": 0
+    }
+
+    total_tournaments = len(processed_standings)
+
+    for standing in processed_standings:
+        # Count placements
+        if "🥇 1st" in standing['placement']:
+            placement_counts["1st"] += 1
+        elif "🥈 2nd" in standing['placement']:
+            placement_counts["2nd"] += 1
+        elif "🥉 3rd" in standing['placement']:
+            placement_counts["3rd"] += 1
+
+        # Count tournament types
+        tournament_types[standing['type']] += 1
+
+    # Calculate percentages
+    online_percent = (tournament_types["Online"] / total_tournaments * 100) if total_tournaments > 0 else 0
+    offline_percent = (tournament_types["Offline"] / total_tournaments * 100) if total_tournaments > 0 else 0
+
+    # Create stats lines
+    stats_lines = []
+
+    # Add placement stats
+    stats_lines.append("[bold cyan]Tournament Placements:[/]")
+    stats_lines.append(f"🥇 1st Place: {placement_counts['1st']} tournament{'s' if placement_counts['1st'] != 1 else ''}")
+    stats_lines.append(f"🥈 2nd Place: {placement_counts['2nd']} tournament{'s' if placement_counts['2nd'] != 1 else ''}")
+    stats_lines.append(f"🥉 3rd Place: {placement_counts['3rd']} tournament{'s' if placement_counts['3rd'] != 1 else ''}")
+
+    # Add tournament type stats
+    stats_lines.append("\n[bold cyan]Tournament Types:[/]")
+    stats_lines.append(f"Online: {tournament_types['Online']} ({online_percent:.1f}%)")
+    stats_lines.append(f"Offline: {tournament_types['Offline']} ({offline_percent:.1f}%)")
+
+    # Display stats in a panel
+    console.print(Panel(
+        "\n".join(stats_lines),
+        title="Tournament Statistics",
+        border_style="cyan"
+    ))
+
+def display_player_placements(placements_data, header=None, auto_retry=None):
     """Format and display player's recent placements in a table."""
     try:
         if not placements_data:
@@ -25,7 +84,11 @@ def display_player_placements(placements_data):
                     console.print(f"[red]- {error.get('message', 'Unknown error')}[/]")
             return
 
-        if not placements_data['data'].get('player'):
+        if not placements_data['data'].get('user'):
+            console.print("[red]No user data in API response[/]")
+            return
+
+        if not placements_data['data']['user'].get('player'):
             console.print("[red]No player data in API response[/]")
             return
 
@@ -33,7 +96,7 @@ def display_player_placements(placements_data):
         create_player_info_panel(placements_data)
 
         # Get standings data
-        player = placements_data['data']['player']
+        player = placements_data['data']['user']['player']
         standings = player.get('recentStandings', []) or []
 
         if not standings:
@@ -44,10 +107,14 @@ def display_player_placements(placements_data):
         table = Table(title="Recent Tournament Placements")
         table.add_column("Date", justify="right")
         table.add_column("Tournament", style="cyan")
-        table.add_column("Event", style="green")
+        table.add_column("Game", style="magenta")
         table.add_column("Placement", justify="right", style="yellow")
         table.add_column("Entrants", justify="right")
         table.add_column("Type", justify="center")
+
+        # Track games and their counts
+        game_counts = defaultdict(int)
+        game_ids = {}
 
         # Process standings and sort by date
         processed_standings = []
@@ -56,13 +123,19 @@ def display_player_placements(placements_data):
                 entrant = standing.get('entrant', {}) or {}
                 event = entrant.get('event', {}) or {}
                 tournament = event.get('tournament', {}) or {}
+                videogame = event.get('videogame', {}) or {}
 
                 # Only process if we have the minimum required data
-                if not all([standing.get('placement'), event.get('name'), tournament.get('name')]):
+                if not all([standing.get('placement'), tournament.get('name')]):
                     continue
 
-                # Get timestamp from event instead of tournament for accurate date
-                timestamp = event.get('startAt', tournament.get('startAt', 0))
+                # Track game counts and IDs
+                game_name = videogame.get('displayName', 'Unknown Game')
+                game_counts[game_name] += 1
+                game_ids[game_name] = videogame.get('id')
+
+                # Get timestamp from event
+                timestamp = event.get('startAt', 0)
 
                 # Format date
                 date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d') if timestamp else "N/A"
@@ -82,7 +155,7 @@ def display_player_placements(placements_data):
                     'timestamp': timestamp,
                     'date': date,
                     'tournament': tournament.get('name', 'N/A'),
-                    'event': event.get('name', 'N/A'),
+                    'game': game_name,
                     'placement': placement,
                     'entrants': str(event.get('numEntrants', 'N/A')),
                     'type': "Online" if event.get('isOnline') else "Offline"
@@ -100,7 +173,7 @@ def display_player_placements(placements_data):
             table.add_row(
                 standing['date'],
                 standing['tournament'],
-                standing['event'],
+                standing['game'],
                 standing['placement'],
                 standing['entrants'],
                 standing['type']
@@ -108,6 +181,43 @@ def display_player_placements(placements_data):
 
         if table.row_count > 0:
             console.print(table)
+
+            # Display tournament statistics
+            console.print()  # Add a blank line
+            display_tournament_stats(processed_standings)
+
+            # Display game counts
+            console.print("\n[bold cyan]Tournaments by Game:[/]")
+            game_options = {}
+            option_num = 1
+            for game_name, count in game_counts.items():
+                game_id = game_ids.get(game_name)
+                if game_id:
+                    game_options[option_num] = (game_name, game_id)
+                    console.print(f"{option_num}. {game_name} (ID: {game_id}): {count} tournament{'s' if count != 1 else ''}")
+                    option_num += 1
+
+            # Prompt user to select a game
+            if game_options and header and auto_retry:
+                console.print("\n[bold cyan]Select a game to see more results (or press Enter to skip):[/]")
+                try:
+                    choice = IntPrompt.ask("Enter the number of your choice", default=0)
+                    if choice in game_options:
+                        game_name, game_id = game_options[choice]
+                        console.print(f"\n[bold green]Fetching results for {game_name}...[/]")
+
+                        # Get the player slug from the original response
+                        user_slug = placements_data['data']['user']['slug']
+
+                        # Run the game-specific query
+                        variables = {"slug": user_slug, "gameID": game_id}
+                        response = run_query(PLAYER_RECENT_GAME_PLACEMENTS_QUERY, variables, header, auto_retry)
+
+                        # Create a new table for game-specific results
+                        console.print(f"\n[bold cyan]Tournament Results for {game_name}:[/]")
+                        display_player_placements(response)
+                except (KeyboardInterrupt, EOFError):
+                    console.print("\n[yellow]Selection cancelled[/]")
         else:
             console.print("[yellow]No valid placement data to display[/]")
 

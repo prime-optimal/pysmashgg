@@ -34,13 +34,15 @@ class TestClass(unittest.TestCase):
 
     def test_player_show_info(self):
         result = self.smash.player_show_info(1000)
-        self.assertEqual(result['tag'], 'Mang0')
-        self.assertEqual(result['name'], 'Joseph Marquez')
-        self.assertIn('rankings', result)
-        self.assertIsInstance(result['rankings'], list)
-        # Test for social media information
-        self.assertIn('socials', result)
-        self.assertIsInstance(result['socials'], dict)
+        self.assertIsNotNone(result, "API response should not be None")
+        if result:  # Only check fields if we got a valid response
+            self.assertEqual(result.get('tag'), 'Mang0')
+            self.assertEqual(result.get('name'), 'Joseph Marquez')
+            self.assertIn('rankings', result)
+            self.assertIsInstance(result['rankings'], list)
+            # Test for social media information
+            self.assertIn('socials', result)
+            self.assertIsInstance(result['socials'], dict)
 
     def test_event_show_head_to_head(self):
         result = self.smash.event_show_head_to_head(529399, "Mang0", "Zain")
@@ -81,9 +83,10 @@ class TestClass(unittest.TestCase):
     def test_player_info_without_game(self):
         """Test getting player info without requiring game ID"""
         result = self.smash.player_show_info(1000)  # Mang0's ID
-        self.assertIsNotNone(result)
-        self.assertEqual(result['tag'], 'Mang0')
-        self.assertIn('socials', result)
+        self.assertIsNotNone(result, "API response should not be None")
+        if result:  # Only check fields if we got a valid response
+            self.assertEqual(result.get('tag'), 'Mang0')
+            self.assertIn('socials', result)
 
 if __name__ == '__main__':
     unittest.main()

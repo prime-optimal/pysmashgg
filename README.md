@@ -82,17 +82,20 @@ python startgg.py results can-opener-series-vol-140-adventures-of-buss-ass
 # Export tournament results to files
 python startgg.py results can-opener-series-vol-140-adventures-of-buss-ass --json results.json --csv results.csv
 
-# Show player info (no game ID needed)
-python startgg.py player info 06989544
+# Show player info
+python startgg.py player info your-player-slug
 
-# Show player results (requires game ID, e.g. 43868 for Street Fighter 6)
-python startgg.py player results 06989544 43868
+# Show player results (all games)
+python startgg.py player results your-player-slug
+
+# Show player results for a specific game
+python startgg.py player results your-player-slug --game 1
 
 # Show player sets from most recent event
-python startgg.py player sets 06989544 43868
+python startgg.py player sets your-player-slug 1
 
 # Search for tournaments or players
-python startgg.py search --player 06989544
+python startgg.py search --player your-player-slug
 python startgg.py search --game "Street Fighter 6"
 
 # Search for tournaments by owner ID
@@ -103,6 +106,28 @@ python startgg.py search --tournament can-opener-series-vol-140-adventures-of-bu
 
 # Search with interactive selection
 python startgg.py search --game "Street Fighter 6" --select
+```
+
+### Player Results Features
+
+The player results command now provides comprehensive tournament statistics:
+
+```bash
+# Show all tournament results with statistics
+python startgg.py player results your-player-slug
+```
+
+This will display:
+- Recent tournament placements table
+- Tournament statistics:
+  * Number of 1st, 2nd, and 3rd place finishes
+  * Online vs Offline tournament percentages
+- Tournaments by game summary with game IDs
+- Interactive game selection for detailed game-specific results
+
+You can also directly view results for a specific game:
+```bash
+python startgg.py player results your-player-slug --game 1
 ```
 
 ## Contributing
