@@ -203,8 +203,10 @@ SHOW_LIGHTWEIGHT_RESULTS_QUERY = """query EventStandings($eventId: ID!, $page: I
           id
           participants {
             player {
+              id                # Added player ID
               gamerTag
               user {
+                slug            # Added user slug
                 authorizations(types: [TWITTER, TWITCH, DISCORD]) {
                   type
                   externalUsername

@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.15.0] - 2025-02-25
+
+### Added
+- Added Player ID display in Player Information panel
+- Added support for multiple player identifier formats:
+  - Player slugs with "user/" prefix (e.g., user/b1008ff3)
+  - Player slugs without prefix (e.g., b1008ff3)
+  - Numerical player IDs (e.g., 156685)
+
+### Changed
+- Enhanced `results` command:
+  - Now accepts player slugs without "user/" prefix
+  - Now accepts numerical player IDs directly
+  - Updated help text and examples to show all supported formats
+  - Added game filtering for player results with `--game` option
+- Enhanced player commands to accept player IDs:
+  - `player info` - Now accepts player IDs directly
+  - `player results` - Now accepts player IDs directly
+  - `player sets` - Now accepts player IDs directly
+- Updated GraphQL queries to include player ID information in responses
+
 ## [1.14.0] - 2024-11-19
 
 ### Changed

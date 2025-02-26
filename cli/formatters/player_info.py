@@ -27,8 +27,11 @@ def create_player_info_panel(player_data):
             # For the new PLAYER_RECENT_PLACEMENTS_QUERY, also check player.user for additional info
             player_user = player.get('user', {})
             # Merge authorizations from both user and player.user if they exist
-            user_auth = user.get('authorizations', [])
+            user_auth = user.get('authorizations', []) or []
             player_user_auth = player_user.get('authorizations', []) if player_user else []
+            # Ensure player_user_auth is always a list
+            if player_user_auth is None:
+                player_user_auth = []
             all_auth = user_auth + [auth for auth in player_user_auth if auth not in user_auth]
         else:
             # Handle PLAYER_INFO_QUERY response format
@@ -37,11 +40,16 @@ def create_player_info_panel(player_data):
                 console.print("[red]No player data found[/]")
                 return
             user = player.get('user', {})
-            all_auth = user.get('authorizations', [])
+            user_auth = user.get('authorizations', [])
+            if user_auth is None:
+                user_auth = []
+            all_auth = user_auth
 
         info_lines = []
 
         # Basic player info
+        if player.get('id'):
+            info_lines.append(f"[bold cyan]Player ID:[/] {player['id']}")
         if player.get('prefix'):
             info_lines.append(f"[bold cyan]Team:[/] {player['prefix']}")
         if player.get('gamerTag'):

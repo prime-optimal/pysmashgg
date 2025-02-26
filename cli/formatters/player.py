@@ -197,27 +197,15 @@ def display_player_placements(placements_data, header=None, auto_retry=None):
                     console.print(f"{option_num}. {game_name} (ID: {game_id}): {count} tournament{'s' if count != 1 else ''}")
                     option_num += 1
 
-            # Prompt user to select a game
-            if game_options and header and auto_retry:
-                console.print("\n[bold cyan]Select a game to see more results (or press Enter to skip):[/]")
-                try:
-                    choice = IntPrompt.ask("Enter the number of your choice", default=0)
-                    if choice in game_options:
-                        game_name, game_id = game_options[choice]
-                        console.print(f"\n[bold green]Fetching results for {game_name}...[/]")
+            # Instead of prompting for game selection, just display the available games
+            if game_options:
+                console.print("\n[bold cyan]Available Games:[/]")
+                for option_num, (game_name, game_id) in game_options.items():
+                    console.print(f"{option_num}. {game_name} (ID: {game_id})")
 
-                        # Get the player slug from the original response
-                        user_slug = placements_data['data']['user']['slug']
-
-                        # Run the game-specific query
-                        variables = {"slug": user_slug, "gameID": game_id}
-                        response = run_query(PLAYER_RECENT_GAME_PLACEMENTS_QUERY, variables, header, auto_retry)
-
-                        # Create a new table for game-specific results
-                        console.print(f"\n[bold cyan]Tournament Results for {game_name}:[/]")
-                        display_player_placements(response)
-                except (KeyboardInterrupt, EOFError):
-                    console.print("\n[yellow]Selection cancelled[/]")
+                console.print("\n[yellow]To see results for a specific game, use:[/]")
+                console.print("[yellow]python startgg.py results <player_slug> --game <game_id>[/]")
+                console.print("[yellow]python startgg.py results <player_id> --game <game_id>[/]")
         else:
             console.print("[yellow]No valid placement data to display[/]")
 

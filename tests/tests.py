@@ -88,5 +88,32 @@ class TestClass(unittest.TestCase):
             self.assertEqual(result.get('tag'), 'Mang0')
             self.assertIn('socials', result)
 
+    def test_player_id_in_response(self):
+        """Test that player ID is included in the player info response"""
+        result = self.smash.player_show_info(1000)  # Mang0's ID
+        self.assertIsNotNone(result, "API response should not be None")
+        if result:  # Only check fields if we got a valid response
+            self.assertIn('id', result, "Player ID should be included in the response")
+            self.assertEqual(result.get('id'), 1000)
+
+    def test_player_lookup_formats(self):
+        """Test that player lookup works with different identifier formats"""
+        # Test with CLI utils directly
+        from cli.utils.player import format_player_slug, lookup_player_id
+
+        # Test format_player_slug function
+        self.assertEqual(format_player_slug("user/b1008ff3"), "user/b1008ff3", "Should keep user/ prefix")
+        self.assertEqual(format_player_slug("b1008ff3"), "user/b1008ff3", "Should add user/ prefix")
+
+        # Test with API directly if possible (requires API key)
+        if os.environ.get('KEY'):
+            # Use a known player ID and slug for testing
+            variables = {"playerId": "1000"}  # Mang0's ID
+            response = run_query(PLAYER_INFO_QUERY, variables, {"Authorization": "Bearer " + os.environ.get('KEY')}, True)
+            self.assertIsNotNone(response, "API response should not be None")
+            self.assertIn('data', response, "Response should contain data")
+            self.assertIn('player', response['data'], "Response should contain player data")
+            self.assertIn('id', response['data']['player'], "Player data should include ID")
+
 if __name__ == '__main__':
     unittest.main()

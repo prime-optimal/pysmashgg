@@ -254,15 +254,29 @@ def show_lightweight_results_filter(response):
         cur_entrant['name'] = node['entrant']['name'].split(' | ')[-1]
         cur_entrant['id'] = node['entrant']['id']
 
+        # Add player ID and user slug
+        cur_entrant['player_id'] = None
+        cur_entrant['user_slug'] = None
+
         # Add social media info
         cur_entrant['socials'] = {}
         if node['entrant']['participants']:
             for participant in node['entrant']['participants']:
-                if participant.get('player') and participant['player'].get('user'):
-                    if participant['player']['user'].get('authorizations'):
-                        for auth in participant['player']['user']['authorizations']:
-                            if auth['type'] and auth['externalUsername']:
-                                cur_entrant['socials'][auth['type'].lower()] = auth['externalUsername']
+                if participant.get('player'):
+                    # Extract player ID
+                    if participant['player'].get('id'):
+                        cur_entrant['player_id'] = participant['player']['id']
+
+                    # Extract user info including slug
+                    if participant['player'].get('user'):
+                        if participant['player']['user'].get('slug'):
+                            cur_entrant['user_slug'] = participant['player']['user']['slug']
+
+                        # Existing social media extraction
+                        if participant['player']['user'].get('authorizations'):
+                            for auth in participant['player']['user']['authorizations']:
+                                if auth['type'] and auth['externalUsername']:
+                                    cur_entrant['socials'][auth['type'].lower()] = auth['externalUsername']
 
         entrants.append(cur_entrant)
 

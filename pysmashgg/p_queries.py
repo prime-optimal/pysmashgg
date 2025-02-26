@@ -2,6 +2,7 @@
 
 PLAYER_SHOW_INFO_QUERY = """query ($playerId: ID!) {
   player(id: $playerId) {
+    id
     gamerTag
     user {
       name
@@ -159,6 +160,7 @@ PLAYER_RECENT_PLACEMENTS_QUERY = """query ($slug: String!) {
       country
     }
     player {
+      id
       prefix
       gamerTag
       user {
@@ -217,6 +219,7 @@ PLAYER_RECENT_GAME_PLACEMENTS_QUERY = """query ($slug: String!, $gameID: ID) {
       country
     }
     player {
+      id
       prefix
       gamerTag
       user {

@@ -23,6 +23,8 @@ def player_show_info_filter(response):
         return None
 
     player = {}
+    # Include player ID in the response
+    player['id'] = response['data']['player']['id']
     player['tag'] = response['data']['player']['gamerTag']
     player['name'] = response['data']['player']['user']['name']
 
